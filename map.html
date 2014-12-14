@@ -23,9 +23,9 @@
         <script src="http://use.edgefonts.net/ubuntu-mono.js"></script>
         <script type="text/javascript">
             $(function(){
-                 $("#region_list").on("click","option",function(){
+                /*$("#region_list").on("click","option",function(){
                     showSelectedLocation();
-                });
+                });*/
             });
             
             var Highmaps = null;
@@ -40,6 +40,8 @@
                     var el = Highmaps.features[i];
                     $("#region_list").append($("<option></option>").attr("value",el.properties["hc-key"]).text(el.properties.name));
                 }
+                
+                $("#selected_region").html("");
                 
                 // Initiate the chart
                 $('#mapdiv').highcharts('Map', {
@@ -87,6 +89,23 @@
                 data[0].color = "#abcdef";
                 $('#mapdiv').highcharts().series[0].setData(data);
             }
+            
+            function addRegion(){
+                var txt = $("#region_list").find(':selected').text();
+                var val = $("#region_list").find(':selected').val();
+                $("#selected_region").append($("<option></option>").attr("value",val).text(txt));
+                
+                var data = [];
+                
+                $("#selected_region option").each(function(i){
+                    data[i] = {};
+                    data[i]["hc-key"] = $(this).val();
+                    data[i].value = Math.round(Math.random() * 1000);
+                    data[i].color = "#abcdef";
+                });
+                
+                $('#mapdiv').highcharts().series[0].setData(data);
+            }
         </script>
     </head>
     <body>
@@ -117,7 +136,7 @@
                 <select id="region_list" class="region_select" name="region_list" size="20" multiple></select>    
             </div>
             <div id="middle">
-                <input type="button" id="addBtn" value=">>"><br><br>
+                <input type="button" id="addBtn" value=">>" onclick="addRegion();"><br><br>
                 <input type="button" id="removeBtn" value="<<">   
             </div>
             <div id="right">
