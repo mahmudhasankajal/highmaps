@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Himaps</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="map.css">
+        <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+        <script src="http://code.highcharts.com/maps/highmaps.js"></script>
+        <!--<script type="text/javascript" src="map.js"></script>-->
+        <script type="text/javascript" src="ca-all-all.js"></script>
+        <script type="text/javascript" src="ca-ab.js"></script>
+        <script type="text/javascript" src="ca-bc-all.js"></script>
+        <script type="text/javascript" src="ca-nb-all.js"></script>
+        <script type="text/javascript" src="ca-nf-all.js"></script>
+        <script type="text/javascript" src="ca-ns-all.js"></script>
+        <script type="text/javascript" src="ca-nt-all.js"></script>
+        <script type="text/javascript" src="ca-on-all.js"></script>
+        <script type="text/javascript" src="ca-pe-all.js"></script>
+        <script type="text/javascript" src="ca-qc-all.js"></script>
+        <script type="text/javascript" src="ca-nu-all.js"></script>
+        <script type="text/javascript" src="ca-sk-all.js"></script>
+        <script type="text/javascript" src="ca-yt-all.js"></script>
+        <script src="http://use.edgefonts.net/ubuntu-mono.js"></script>
+        <script type="text/javascript">
+            $(function(){
+                 $("#region_list").on("click","option",function(){
+                    showSelectedLocation();
+                });
+            });
+            
+            var Highmaps = null;
+            function selectMap(){
+                Highmaps = Highcharts.maps[$("#mapselector").val()];
+                loadMapData([]);
+            }
+            
+            function loadMapData(data){
+                $("#region_list").html("");
+                for(var i = 0; i < Highmaps.features.length; i++){
+                    var el = Highmaps.features[i];
+                    $("#region_list").append($("<option></option>").attr("value",el.properties["hc-key"]).text(el.properties.name));
+                }
+                
+                // Initiate the chart
+                $('#mapdiv').highcharts('Map', {
+                    title : {
+                        text : 'Highmaps map selector'
+                    },
+
+                    /*subtitle : {
+                        text : 'Source map: <a href="http://code.highcharts.com/mapdata/countries/ca/ca-all.js">Canada</a>'
+                    },*/
+
+                    mapNavigation: {
+                        enabled: true,
+                        buttonOptions: {
+                            verticalAlign: 'bottom'
+                        }
+                    },
+
+                    colorAxis: {
+                        min: 0
+                    },
+
+                    series : [{
+                        data : data,
+                        mapData: Highmaps,
+                        joinBy: 'hc-key',
+                        name: 'Random data',
+                        states: {
+                            hover: {
+                                color: '#BADA55'
+                            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            format: '{point.name}'
+                        }
+                    }]
+                });
+            }
+            
+            function showSelectedLocation(){
+                var data = [{}];
+                data[0]["hc-key"] = $("#region_list").find(':selected').val();
+                data[0].value = Math.round(Math.random() * 1000);
+                data[0].color = "#abcdef";
+                $('#mapdiv').highcharts().series[0].setData(data);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="main_content">
+            <div id='top'>
+                <div class="styled-select">
+                    <select id="mapselector" name="mapselector" onchange="selectMap();">
+                        <option value="">Select a Map</option>
+                        <option value="countries/ca/ca-all">Canada All</option>
+                        <option value="countries/ca/ca-all-all">Canada All Provinces</option>
+                        <option value="countries/ca/ca-ab-all">Alberta</option>
+                        <option value="countries/ca/ca-bc-all">British Columbia</option>
+                        <option value="countries/ca/ca-sk-all">Saskatchewan</option>
+                        <option value="countries/ca/ca-mb-all">Manitoba</option>
+                        <option value="countries/ca/ca-nf-all">Newfoundland and Labrator</option>
+                        <option value="countries/ca/ca-nb-all">New Brunswick</option>
+                        <option value="countries/ca/ca-nt-all">Northwest Territories</option>
+                        <option value="countries/ca/ca-nu-all">Nunavut</option>
+                        <option value="countries/ca/ca-pe-all">Prince Edward Island</option>
+                        <option value="countries/ca/ca-qc-all">Quebec</option>
+                        <option value="countries/ca/ca-yt-all">Yukon</option>
+                        <option value="countries/ca/ca-on-all">Ontario</option>
+                    </select>
+                </div>
+           </div>
+            <div id="left">
+                <label for="region_list">Regions</label><br>
+                <select id="region_list" class="region_select" name="region_list" size="20" multiple></select>    
+            </div>
+            <div id="middle">
+                <input type="button" id="addBtn" value=">>"><br><br>
+                <input type="button" id="removeBtn" value="<<">   
+            </div>
+            <div id="right">
+                <label for="selected_region">Selected Regions</label><br>
+                <select id="selected_region" class="region_select" name="selected_region" size="20"></select>    
+            </div>
+            <div id="mapdiv"></div>
+        </div>
+    </body>
+</html>
