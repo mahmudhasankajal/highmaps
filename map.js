@@ -102,3 +102,16 @@ function removeRegion(){
 
     $('#mapdiv').highcharts().series[0].setData(data);
 }
+
+function getSelectedRegionMapCoordinates(){
+    var coordinates = [];
+    $("#selected_region option").each(function(i){
+        coordinates[i] = {};
+        var hc_key = $(this).val();
+
+        for(var i = 0; i < Highmaps.features.length; i++){
+            if(Highmaps.features[i].properties["hc-key"] == hc_key)
+                coordinates[i].coordinates = Highmaps.features[i].properties["coordinates"];
+        }
+    });
+}
