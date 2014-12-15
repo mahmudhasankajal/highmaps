@@ -7,9 +7,11 @@
         <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
         <script src="http://code.highcharts.com/maps/highmaps.js"></script>
         <!--<script type="text/javascript" src="map.js"></script>-->
+        <script type="text/javascript" src="ca-all.js"></script>
         <script type="text/javascript" src="ca-all-all.js"></script>
         <script type="text/javascript" src="ca-ab.js"></script>
         <script type="text/javascript" src="ca-bc-all.js"></script>
+        <script type="text/javascript" src="ca-mb-all.js"></script>
         <script type="text/javascript" src="ca-nb-all.js"></script>
         <script type="text/javascript" src="ca-nf-all.js"></script>
         <script type="text/javascript" src="ca-ns-all.js"></script>
@@ -73,7 +75,7 @@
                         },
                         dataLabels: {
                             enabled: true,
-                            format: '{point.name}'
+                            format: '{point.selectAreaName}'
                         }
                     }]
                 });
@@ -99,6 +101,7 @@
                     data[i]["hc-key"] = $(this).val();
                     data[i].value = Math.round(Math.random() * 1000);
                     data[i].color = "#abcdef";
+                    data[i].selectAreaName = "Random Name " + Math.round(Math.random() * 1000);
                 });
                 
                 $('#mapdiv').highcharts().series[0].setData(data);
