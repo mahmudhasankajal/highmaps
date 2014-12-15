@@ -9,7 +9,7 @@
         <!--<script type="text/javascript" src="map.js"></script>-->
         <script type="text/javascript" src="ca-all.js"></script>
         <script type="text/javascript" src="ca-all-all.js"></script>
-        <script type="text/javascript" src="ca-ab.js"></script>
+        <script type="text/javascript" src="ca-ab-all.js"></script>
         <script type="text/javascript" src="ca-bc-all.js"></script>
         <script type="text/javascript" src="ca-mb-all.js"></script>
         <script type="text/javascript" src="ca-nb-all.js"></script>
@@ -106,6 +106,21 @@
                 
                 $('#mapdiv').highcharts().series[0].setData(data);
             }
+
+            function removeRegion(){
+                $("#selected_region option:selected").remove();
+
+                var data = [];
+                $("#selected_region option").each(function(i){
+                    data[i] = {};
+                    data[i]["hc-key"] = $(this).val();
+                    data[i].value = Math.round(Math.random() * 1000);
+                    data[i].color = "#abcdef";
+                    data[i].selectAreaName = "Random Name " + Math.round(Math.random() * 1000);
+                });
+
+                $('#mapdiv').highcharts().series[0].setData(data);
+            }
         </script>
     </head>
     <body>
@@ -137,7 +152,7 @@
             </div>
             <div id="middle">
                 <input type="button" id="addBtn" value=">>" onclick="addRegion();"><br><br>
-                <input type="button" id="removeBtn" value="<<">   
+                <input type="button" id="removeBtn" value="<<" onclick="removeRegion();">
             </div>
             <div id="right">
                 <label for="selected_region">Selected Regions</label><br>
