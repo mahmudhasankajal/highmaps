@@ -1,0 +1,36 @@
+Map file format
+---------------------------------
+{
+	"title" : "",
+	"version" : "",
+	"hc-transform": {
+		"default": {
+			"crs": "+proj=utm +zone=20 +datum=WGS84 +units=m +no_defs",
+			"scale": 0.0013120221181,
+			"jsonres": 15.5,
+			"jsonmarginX": -999,
+			"jsonmarginY": 9851,
+			"xoffset": 228907.068704,
+			"yoffset": 5233757.99943
+		}
+	},
+	"features": [
+		{
+			"type": "Feature",
+			"id": "CA.NS.1217",
+			"properties": {
+				"hc-group": "admin2",
+				"hc-middle-x": 0.5,
+				"hc-middle-y": 0.5,
+				"hc-key": "ca-ns-1217",
+				"hc-a2": "CB",
+				"name": "Cape Breton",
+				"type": "CTY"
+			},
+			"geometry": {
+				"type": "MultiPolygon",
+				"coordinates": []
+			}
+		}
+	]
+}
