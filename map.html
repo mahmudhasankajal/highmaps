@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>Himaps</title>
+        <title>Highmaps</title>
         <meta charset="utf-8">
         <link rel="stylesheet" href="map.css">
         <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
@@ -52,8 +52,9 @@
                 <select id="region_list" class="region_select" name="region_list" size="20" multiple></select>    
             </div>
             <div id="middle">
-                <input type="button" id="addBtn" value=">>" onclick="addRegion();"><br><br>
+                <input type="button" id="addBtn" value=">>" onclick="addRegion();">
                 <input type="button" id="removeBtn" value="<<" onclick="removeRegion();">
+                <input type="button" id="sepBtn" value="--" onclick="addSeparator();">
             </div>
             <div id="right">
                 <label for="selected_region">Selected Regions</label><br>

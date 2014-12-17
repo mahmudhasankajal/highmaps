@@ -1,6 +1,16 @@
 $(function(){
 });
 
+var emptyMap = {
+    "title": "Empty Map",
+    "version": "1.0.0",
+    "features": [
+        {
+
+        }
+    ]
+};
+
 var Highmaps = null;
 function selectMap(){
     Highmaps = Highcharts.maps[$("#mapselector").val()];
@@ -78,11 +88,13 @@ function addRegion(){
     var data = [];
 
     $("#selected_region option").each(function(i){
-        data[i] = {};
-        data[i]["hc-key"] = $(this).val();
-        data[i].value = Math.round(Math.random() * 1000);
-        data[i].color = "#abcdef";
-        data[i].selectAreaName = "Random Name " + Math.round(Math.random() * 1000);
+        if($(this).val() != "--") {
+            data[i] = {};
+            data[i]["hc-key"] = $(this).val();
+            data[i].value = Math.round(Math.random() * 1000);
+            data[i].color = "#abcdef";
+            data[i].selectAreaName = "Random Name " + Math.round(Math.random() * 1000);
+        }
     });
 
     $('#mapdiv').highcharts().series[0].setData(data);
@@ -101,6 +113,10 @@ function removeRegion(){
     });
 
     $('#mapdiv').highcharts().series[0].setData(data);
+}
+
+function addSeparator(){
+    $("#selected_region").append($("<option></option>").attr("value","--").text("----------"));
 }
 
 function getSelectedRegionMapCoordinates(){
