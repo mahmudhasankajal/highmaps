@@ -1,4 +1,9 @@
 $(function(){
+    $('#mapdiv').click(function(e) {
+        //alert(e.pageX+ ' , ' + e.pageY);
+        if($("#popup").attr("display") == "block")
+            $("#popup").attr("display","none");
+    });
 });
 
 var emptyMap = {
@@ -11,10 +16,25 @@ var emptyMap = {
     ]
 };
 
+var highest_map_level = 0;
+var lowest_map_level = 2;
+var current_map_level = 0;
+
+var my_data = [{"hc-key": "ca-ab","name":"Alberta","value": 1},{"hc-key": "ca-bc","name":"British Columbia","value": 2}, {"hc-key": "ca-mb","name":"Manitoba","value":3}, {"hc-key": "ca-nb","name":"New Brunswick","value": 4}, {"hc-key": "ca-nl","name":"Newfoundland and Labrador","value": 5}, {"hc-key": "ca-ns","name":"Nova Scotia","value": 6}, {"hc-key": "ca-nt","name":"Northwest Territories","value": 7}, {"hc-key": "ca-nu","name":"Nunavut","value": 8}, {"hc-key": "ca-on","name":"Ontario","value": 9}, {"hc-key": "ca-pe","name":"Prince Edward Island","value": 10}, {"hc-key": "ca-qc","name":"Quebec","value": 11}, {"hc-key": "ca-sk","name":"Saskatchewan","value": 12}, {"hc-key": "ca-yt","name":"Yukon","value": 13}];
+
 var Highmaps = null;
+
 function selectMap(){
     Highmaps = Highcharts.maps[$("#mapselector").val()];
-    loadMapData([]);
+    if ($("#mapselector").val() == "countries/ca/ca-all")
+        loadMapData(my_data);
+    else
+        loadMapData([]);
+}
+
+function zoomPoint(selectedPoint){
+    $("#mapselector").val(selectedPoint);
+    $("#mapselector").change();
 }
 
 function loadMapData(data){
@@ -47,6 +67,24 @@ function loadMapData(data){
             min: 0
         },
 
+        tooltip: {
+            formatter: function () {
+                return 'Province: ' + this.point.name + '<br>' + 'Value: ' + this.point.value;
+            }
+        },
+        plotOptions: {
+            series: {
+                point: {
+                    events: {
+                        click: function (e) {
+                            //zoomPoint("countries/ca/" + this["hc-key"] + "-all");
+                            var posX = $(this).position().left,posY = $(this).position().top;
+                            alert( (e.pageX - posX) + ' , ' + (e.pageY - posY));
+                        }
+                    }
+                }
+            }
+        },
         series : [{
             data : data,
             mapData: Highmaps,
@@ -59,14 +97,7 @@ function loadMapData(data){
             },
             dataLabels: {
                 enabled: true,
-                format: '{point.selectAreaName}'
-            },
-            point:{
-                events:{
-                    click: function(){
-
-                    }
-                }
+                format: '{point.name}'
             }
         }]
     });
@@ -130,4 +161,8 @@ function getSelectedRegionMapCoordinates(){
                 coordinates[i].coordinates = Highmaps.features[i].properties["coordinates"];
         }
     });
+}
+
+function showPopup(id,data,pos){
+
 }
