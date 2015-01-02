@@ -69,7 +69,7 @@ function loadMapData(data){
 
         tooltip: {
             formatter: function () {
-                return 'Province: ' + this.point.name + '<br>' + 'Value: ' + this.point.value;
+                return 'Area Name: ' + this.point.name + '<br>' + 'Value: ' + this.point.value;
             }
         },
         plotOptions: {

@@ -1,3 +1,8 @@
 1. Load Top level map (top for the currently logged in Admin) and set current level to top level
+
 2. Load data for the above level (data points and report data from database)
-3. 
+
+3. When a point is clicked, show popup containing "Drill-down", "Show Details", "Go up" (drill-down and go-up will depend on the level. top-level won't have go-up, lowest level won't have drill-down).
+
+4. When "Drill-down" or "Go up" is selected, get mapData and data from server and redraw the map.
+
