@@ -1,4 +1,17 @@
 #report_map_div {width: 880px; height: 700px; position: relative; overflow: auto; padding: 10px; margin: 10px auto;}
+
 #report_filters_div {width: 880px; position: relative; overflow: auto; padding: 10px; margin: 10px auto;}
-#point_menu_div {display: none; width: 140px; min-height: 100px; border: 1px solid #333; position: absolute; background-color: #eee;}
-#point_menu_div #close_link {position: absolute; right: 2px; bottom: 2px; font-size: 0.8em;}
+
+#point_menu_div {display: none; width: 120px; overflow: auto ; position: absolute;}
+
+#point_menu_div a {display: block; text-decoration: none; padding: 2px 5px; margin: 0; border: 1px solid #333; text-align: center; background-color: #fff; font-family: Arial, sans-serif; color: #1e90ff; font-weight: bold; font-size: 0.7em; text-transform: uppercase;}
+
+#point_menu_div a:first-child{border-bottom: none;}
+
+#point_menu_div #close_link {display: block; font-size: 0.8em; text-decoration: none; border: none; text-align: right; margin: 0; padding: 0; background-color: transparent; background: none;}
+
+.view_detail { background: url(arrow-right-16.png) no-repeat right 50%; }
+
+.go_up { background: url(arrow-up-16.png) no-repeat right 50%; }
+
+.go_down{ background: url(arrow-down-16.png) no-repeat right 50%; }

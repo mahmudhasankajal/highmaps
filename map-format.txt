@@ -34,3 +34,27 @@ Map file format
 		}
 	]
 }
+
+Top level	(mapData)
+	Mid level (data & mapData)
+		Low level (data)
+		
+		
+h1
+-----------------------
+map_data
+title
+
+h2
+-----------------------
+id
+title
+map_data
+hc_key
+
+
+h3
+-----------------------
+id
+title
+hc_key
