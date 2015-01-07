@@ -7,17 +7,20 @@ var min_map_level = 1;
 var max_map_level = 2;
 var clicked_point = null;
 
-var my_data = [{"hc-key": "ca-ab","name":"Alberta","value": 1,"id": 1},{"hc-key": "ca-bc","name":"British Columbia","value": 2,"id": 2}, {"hc-key": "ca-mb","name":"Manitoba","value":3,"id": 3}, {"hc-key": "ca-nb","name":"New Brunswick","value": 4,"id": 4}, {"hc-key": "ca-nl","name":"Newfoundland and Labrador","value": 5,"id": 5}, {"hc-key": "ca-ns","name":"Nova Scotia","value": 6,"id": 6}, {"hc-key": "ca-nt","name":"Northwest Territories","value": 7,"id": 7}, {"hc-key": "ca-nu","name":"Nunavut","value": 8,"id": 8}, {"hc-key": "ca-on","name":"Ontario","value": 9,"id": 9}, {"hc-key": "ca-pe","name":"Prince Edward Island","value": 10,"id": 10}, {"hc-key": "ca-qc","name":"Quebec","value": 11,"id": 11}, {"hc-key": "ca-sk","name":"Saskatchewan","value": 12,"id": 12}, {"hc-key": "ca-yt","name":"Yukon","value": 13,"id": 13}];
+/*var my_data = [{"hc-key": "ca-ab","name":"Alberta","value": 1,"id": 1},{"hc-key": "ca-bc","name":"British Columbia","value": 2,"id": 2}, {"hc-key": "ca-mb","name":"Manitoba","value":3,"id": 3}, {"hc-key": "ca-nb","name":"New Brunswick","value": 4,"id": 4}, {"hc-key": "ca-nl","name":"Newfoundland and Labrador","value": 5,"id": 5}, {"hc-key": "ca-ns","name":"Nova Scotia","value": 6,"id": 6}, {"hc-key": "ca-nt","name":"Northwest Territories","value": 7,"id": 7}, {"hc-key": "ca-nu","name":"Nunavut","value": 8,"id": 8}, {"hc-key": "ca-on","name":"Ontario","value": 9,"id": 9}, {"hc-key": "ca-pe","name":"Prince Edward Island","value": 10,"id": 10}, {"hc-key": "ca-qc","name":"Quebec","value": 11,"id": 11}, {"hc-key": "ca-sk","name":"Saskatchewan","value": 12,"id": 12}, {"hc-key": "ca-yt","name":"Yukon","value": 13,"id": 13}];
 
-var map_data = Highcharts.maps["countries/ca/ca-all"];
+var map_data = Highcharts.maps["countries/ca/ca-all"];*/
+
+var my_data = null;
+var map_data = null;
 
 function showKeys(obj){
     console.log(Object.keys(obj));
 }
 
-function getDataFromServer(){
+function getDataFromServer(current_map_level, hc_key){
     $.ajax({
-        url: "http://opi.oliverslm.ca/onlinetesting/get_map_data.php",
+        url: "http://opi.oliverslm.ca/onlinetesting/get_map_data.php?current_map_level="+current_map_level+"&map_key="+hc_key,
         async : false,
         dataType: "json",
         success: function(data){
@@ -92,20 +95,6 @@ function loadMapData(map_data, data){
                         $("#point_menu_div").css("display","none");
                         $("#point_menu_div").css("display","block").css("left",e.clientX + "px").css("top",e.clientY+"px");
                         clicked_point = this.id;
-                        /*var text = '<b>Clicked point</b><br>Series: ' + this.series.name +
-                                '<br>Point: ' + this.name + ' (' + this.value + ')'
-                            chart = this.series.chart;
-                        if (!chart.clickLabel) {
-                            chart.clickLabel = chart.renderer.label(text, 0, 250)
-                                .css({
-                                    width: '180px'
-                                })
-                                .add();
-                        } else {
-                            chart.clickLabel.attr({
-                                text: text
-                            });
-                        }*/
                     }
                 }
             }
@@ -118,7 +107,7 @@ $(function(){
         hidePopup();
         return false;
     });
-    getDataFromServer();
+    getDataFromServer(current_map_level,'ca');
     createPopupMenu();
     $(".go_up").click(function(e){
         hidePopup();

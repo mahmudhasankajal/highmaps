@@ -1,6 +1,8 @@
 <?php
 	require_once('include/h.inc.php');
 
+	$db->query("SET NAMES 'utf8'");
+
 	function dump2($v){
 		echo "<pre>";
 		var_dump($v);
@@ -9,7 +11,7 @@
 
 	$min_level  = 1;
 
-	$requested_map_level = isset($_GET['current_map_level']) ? $_GET['current_map_level'] : $min_level;
+	$requested_map_level = isset($_GET['requested_map_level']) ? $_GET['requested_map_level'] : $min_level;
 	$hc_key = isset($_GET['map_key']) ? $_GET['map_key'] : 'ca';
 	
 	$res = $db->query("select * from map_data where hc_key = '$hc_key' and level = $requested_map_level");
