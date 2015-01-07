@@ -16,7 +16,19 @@ function showKeys(obj){
 }
 
 function getDataFromServer(){
-
+    $.ajax({
+        url: "http://opi.oliverslm.ca/onlinetesting/get_map_data.php",
+        async : false,
+        dataType: "json",
+        success: function(data){
+            if(data != "") {
+                var m_data = data;
+                my_data = m_data.data;
+                map_data = m_data.map_data;
+                loadMapData(map_data, my_data);
+            }
+        }
+    });
 }
 
 function hidePopup(){
@@ -34,7 +46,7 @@ function createPopupMenu(){
 function loadMapData(map_data, data){
     $('#report_map_div').highcharts('Map', {
         title : {
-            text : 'Highmaps map selector'
+            text : map_data.title
         },
         mapNavigation: {
             enabled: true,
@@ -49,7 +61,7 @@ function loadMapData(map_data, data){
 
         tooltip: {
             formatter: function () {
-                return 'Area Name: ' + this.point.name + '<br>' + 'Value: ' + this.point.value;
+                return 'Area Name: ' + this.point.title + '<br>' + 'Value: ' + this.point.value;
             }
         },
         chart: {
@@ -106,7 +118,7 @@ $(function(){
         hidePopup();
         return false;
     });
-    loadMapData(map_data, my_data);
+    getDataFromServer();
     createPopupMenu();
     $(".go_up").click(function(e){
         hidePopup();
