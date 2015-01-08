@@ -6,13 +6,13 @@ var current_map_level = 1;
 var min_map_level = 1;
 var max_map_level = 2;
 var clicked_point = null;
-
-/*var my_data = [{"hc-key": "ca-ab","name":"Alberta","value": 1,"id": 1},{"hc-key": "ca-bc","name":"British Columbia","value": 2,"id": 2}, {"hc-key": "ca-mb","name":"Manitoba","value":3,"id": 3}, {"hc-key": "ca-nb","name":"New Brunswick","value": 4,"id": 4}, {"hc-key": "ca-nl","name":"Newfoundland and Labrador","value": 5,"id": 5}, {"hc-key": "ca-ns","name":"Nova Scotia","value": 6,"id": 6}, {"hc-key": "ca-nt","name":"Northwest Territories","value": 7,"id": 7}, {"hc-key": "ca-nu","name":"Nunavut","value": 8,"id": 8}, {"hc-key": "ca-on","name":"Ontario","value": 9,"id": 9}, {"hc-key": "ca-pe","name":"Prince Edward Island","value": 10,"id": 10}, {"hc-key": "ca-qc","name":"Quebec","value": 11,"id": 11}, {"hc-key": "ca-sk","name":"Saskatchewan","value": 12,"id": 12}, {"hc-key": "ca-yt","name":"Yukon","value": 13,"id": 13}];
-
-var map_data = Highcharts.maps["countries/ca/ca-all"];*/
-
+var map_key = "";
+var clicked_point_key = "";
+var clicked_point_level = 0;
 var my_data = null;
 var map_data = null;
+var clicked_point_obj = null;
+
 
 function showKeys(obj){
     console.log(Object.keys(obj));
@@ -29,6 +29,8 @@ function getDataFromServer(current_map_level, hc_key){
                 my_data = m_data.data;
                 map_data = m_data.map_data;
                 loadMapData(map_data, my_data);
+                current_map_level = m_data.map_level;
+                map_key = m_data.map_key;
             }
         }
     });
@@ -40,10 +42,84 @@ function hidePopup(){
 
 function createPopupMenu(){
     $("#point_menu_div").prepend($("<a></a>").attr("href","#").text("View Detail").addClass("view_detail"));
-    if(current_map_level > min_map_level)
-        $("#point_menu_div").prepend($("<a></a>").attr("href","#").text("Go Up").addClass("go_up"));
-    if(current_map_level < max_map_level)
-        $("#point_menu_div").prepend($("<a></a>").attr("href","#").text("Drill Down").addClass("go_down"));
+    $("#point_menu_div").prepend($("<a></a>").attr("href","#").text("Drill Down").addClass("go_down"));
+    $("#point_menu_div").prepend($("<a></a>").attr("href","#").text("Go Up").addClass("go_up"));
+
+    $(".go_up").click(function(e){
+        goUp(e);
+    });
+
+    $(".go_down").click(function(e){
+        drillDown(e);
+    });
+
+    $(".view_detail").click(function(e){
+        hidePopup();
+        alert("id : " + clicked_point + " > Loading detail");
+    });
+
+    if(current_map_level <= min_map_level)
+        $(".go_up").hide();
+
+    if(current_map_level >= max_map_level)
+        $(".go_down").hide();
+}
+
+function updatePopupMenu(){
+    if(current_map_level <= min_map_level)
+        $(".go_up").hide();
+    else
+        $(".go_up").show();
+
+    if(current_map_level >= max_map_level)
+        $(".go_down").hide();
+    else
+        $(".go_down").show();
+}
+
+function goUp(e){
+    e.preventDefault();
+    hidePopup();
+
+    $.ajax({
+        url: "http://opi.oliverslm.ca/onlinetesting/get_map_data.php?action=go_up&current_map_level="+current_map_level+"&key="+map_key,
+        async : false,
+        dataType: "json",
+        success: function(data){
+            if(data != "") {
+                var m_data = data;
+                my_data = m_data.data;
+                map_data = m_data.map_data;
+                loadMapData(map_data, my_data);
+                current_map_level = m_data.map_level;
+                map_key = m_data.map_key;
+                updatePopupMenu();
+            }
+        }
+    });
+}
+
+function drillDown(e){
+    e.preventDefault();
+    hidePopup();
+
+    $.ajax({
+        url: "http://opi.oliverslm.ca/onlinetesting/get_map_data.php?action=go_down&current_map_level="+current_map_level+"&key="+clicked_point_key,
+        async : false,
+        dataType: "json",
+        success: function(data){
+            if(data != "") {
+                var m_data = data;
+                my_data = m_data.data;
+                map_data = m_data.map_data;
+                loadMapData(map_data, my_data);
+                current_map_level = m_data.map_level;
+                map_key = m_data.map_key;
+                updatePopupMenu();
+            }
+        }
+    });
+
 }
 
 function loadMapData(map_data, data){
@@ -63,8 +139,12 @@ function loadMapData(map_data, data){
         },
 
         tooltip: {
+            backgroundColor: null,
+            borderWidth: 0,
+            shadow: false,
+            useHTML: true,
             formatter: function () {
-                return 'Area Name: ' + this.point.title + '<br>' + 'Value: ' + this.point.value;
+                return this.point.tooltip;
             }
         },
         chart: {
@@ -92,9 +172,12 @@ function loadMapData(map_data, data){
             point: {
                 events: {
                     click: function (e) {
+                        clicked_point = this.id;
+                        clicked_point_key = this["hc-key"];
+                        clicked_point_level = this.level;
+                        clicked_point_obj = this;
                         $("#point_menu_div").css("display","none");
                         $("#point_menu_div").css("display","block").css("left",e.clientX + "px").css("top",e.clientY+"px");
-                        clicked_point = this.id;
                     }
                 }
             }
@@ -107,16 +190,19 @@ $(function(){
         hidePopup();
         return false;
     });
+
     getDataFromServer(current_map_level,'ca');
+
     createPopupMenu();
+
     $(".go_up").click(function(e){
-        hidePopup();
-        alert("id : " + clicked_point + " > Going up");
+        goUp(e);
     });
+
     $(".go_down").click(function(e){
-        hidePopup();
-        alert("id : " + clicked_point + " > Drilling down");
+        drillDown(e);
     });
+
     $(".view_detail").click(function(e){
         hidePopup();
         alert("id : " + clicked_point + " > Loading detail");
