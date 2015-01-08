@@ -119,7 +119,6 @@ function drillDown(e){
             }
         }
     });
-
 }
 
 function loadMapData(map_data, data){
@@ -192,19 +191,5 @@ $(function(){
     });
 
     getDataFromServer(current_map_level,'ca');
-
     createPopupMenu();
-
-    $(".go_up").click(function(e){
-        goUp(e);
-    });
-
-    $(".go_down").click(function(e){
-        drillDown(e);
-    });
-
-    $(".view_detail").click(function(e){
-        hidePopup();
-        alert("id : " + clicked_point + " > Loading detail");
-    });
 });
