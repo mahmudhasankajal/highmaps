@@ -5,13 +5,10 @@
 var current_map_level = 1;
 var min_map_level = 1;
 var max_map_level = 2;
-var clicked_point = null;
+var clicked_point_obj = null;
 var map_key = "";
-var clicked_point_key = "";
-var clicked_point_level = 0;
 var my_data = null;
 var map_data = null;
-var clicked_point_obj = null;
 var server_script_url = "http://opi.oliverslm.ca/onlinetesting/get_map_data.php";
 
 function getDataFromServer(current_map_level, hc_key){
@@ -32,8 +29,8 @@ function getDataFromServer(current_map_level, hc_key){
     });
 }
 
-function initParams(){
-
+function initParams(param){
+    
 }
 
 function hidePopup(){
@@ -55,7 +52,7 @@ function createPopupMenu(){
 
     $(".view_detail").click(function(e){
         hidePopup();
-        alert("id : " + clicked_point + " > Loading detail");
+        alert("id : " + clicked_point_obj.id + " > Loading detail");
     });
 
     if(current_map_level <= min_map_level)
@@ -104,7 +101,7 @@ function drillDown(e){
     hidePopup();
 
     $.ajax({
-        url: server_script_url + "?action=go_down&current_map_level="+current_map_level+"&key="+clicked_point_key,
+        url: server_script_url + "?action=go_down&current_map_level="+current_map_level+"&key="+clicked_point_obj["hc-key"],
         async : false,
         dataType: "json",
         success: function(data){
@@ -171,9 +168,6 @@ function loadMapData(map_data, data){
             point: {
                 events: {
                     click: function (e) {
-                        clicked_point = this.id;
-                        clicked_point_key = this["hc-key"];
-                        clicked_point_level = this.level;
                         clicked_point_obj = this;
                         $("#point_menu_div").css("display","none");
                         $("#point_menu_div").css("display","block").css("left",e.clientX + "px").css("top",e.clientY+"px");
