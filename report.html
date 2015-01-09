@@ -5,12 +5,20 @@
     <title>Report</title>
     <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
     <script src="http://code.highcharts.com/maps/highmaps.js"></script>
-    <!--<script type="text/javascript" src="ca-all.js"></script>-->
     <link rel="stylesheet" href="report.css">
-    <script language="JavaScript" src="report.js"></script>
+    <script language="JavaScript" src="report2.js"></script>
 </head>
 <body>
-    <div id="report_filters_div"></div>
+    <div id="report_filters_div">
+        <form action="" name="data_filter_form" id="data_filter_form" method="get">
+            <select name="status_cb" id="status_cb">
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+            Date Range From: <input type="text" name="date_from" id="date_from"/> To: <input type="text" name="date_to" id="date_to"/> <input type="submit" name="submit" id="submit" value="Submit">
+        </form>
+    </div>
     <div id="report_map_div"></div>
     <div id="point_menu_div"><a href="#" id="close_link"><img src="close-button-1.png"></a></div>
 </body>

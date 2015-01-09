@@ -6,10 +6,11 @@ var current_map_level = 1;
 var min_map_level = 1;
 var max_map_level = 2;
 var clicked_point_obj = null;
-var map_key = "";
+var map_key = "ca";
 var my_data = null;
 var map_data = null;
 var server_script_url = "http://opi.oliverslm.ca/onlinetesting/get_map_data.php";
+var data_filter_form = "data_filter_form";
 
 function getDataFromServer(current_map_level, hc_key){
     $.ajax({
@@ -29,7 +30,7 @@ function getDataFromServer(current_map_level, hc_key){
     });
 }
 
-function initParams(param){
+function initParams(params){
     
 }
 
@@ -184,6 +185,13 @@ $(function(){
         return false;
     });
 
-    getDataFromServer(current_map_level,'ca');
+    getDataFromServer(current_map_level,map_key);
     createPopupMenu();
+
+    if(data_filter_form) {
+        $("#" + data_filter_form).on("submit", function () {
+            alert($("#" + data_filter_form).serialize());
+            return false;
+        });
+    }
 });
