@@ -2,6 +2,8 @@
  * Created by Mahmud on 02/01/2015.
  */
 
+var params = {"current_map_level": 1,"min_map_level": 1, "max_map_level": 1,"map_key": "ca","server_script_url":"http://opi.oliverslm.ca/onlinetesting/get_map_data.php","data_filter_form":"data_filter_form"};
+
 var current_map_level = 1;
 var min_map_level = 1;
 var max_map_level = 2;
@@ -11,6 +13,8 @@ var my_data = null;
 var map_data = null;
 var server_script_url = "http://opi.oliverslm.ca/onlinetesting/get_map_data.php";
 var data_filter_form = "data_filter_form";
+
+initParams(params);
 
 function getDataFromServer(current_map_level, hc_key){
     $.ajax({
@@ -31,7 +35,17 @@ function getDataFromServer(current_map_level, hc_key){
 }
 
 function initParams(params){
-    
+    if(localStorage.getItem('map_data') == null) {
+        current_map_level = params.current_map_level;
+        min_map_level = params.min_map_level;
+        max_map_level = params.max_map_level;
+        map_key = params.map_key;
+        server_script_url = params.server_script_url;
+        data_filter_form = params.data_filter_form;
+    }
+    else{
+        restoreState();
+    }
 }
 
 function hidePopup(){
@@ -117,6 +131,27 @@ function drillDown(e){
             }
         }
     });
+}
+
+function saveState(){
+	var obj_to_save = {"current_map_level": current_map_level,"min_map_level": min_map_level, "max_map_level": max_map_level,"map_key": map_key,"server_script_url": server_script_url,"data_filter_form": data_filter_form};
+    localStorage.setItem('map_state', JSON.stringify(testObject));
+
+    $("#"+data_filter_form).saveForm();
+}
+
+function restoreState(){
+    var retrievedObject = localStorage.getItem('map_state');
+
+    current_map_level = retrievedObject.current_map_level;
+    min_map_level = retrievedObject.min_map_level;
+    max_map_level =retrievedObject.max_map_level;
+    map_key = retrievedObject.map_key;
+    server_script_url = retrievedObject.server_script_url;
+    data_filter_form = retrievedObject.data_filter_form;
+    localStorage.removeItem('map_state');
+
+    $("#"+data_filter_form).restoreForm();
 }
 
 function loadMapData(map_data, data){
