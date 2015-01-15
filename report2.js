@@ -2,23 +2,15 @@
  * Created by Mahmud on 02/01/2015.
  */
 
-var params = {"current_map_level": 1,"min_map_level": 1, "max_map_level": 1,"map_key": "ca","server_script_url":"http://opi.oliverslm.ca/onlinetesting/get_map_data.php","data_filter_form":"data_filter_form"};
+var params = {"current_map_level": 1,"min_map_level": 1, "max_map_level": 2,"map_key": "ca","server_script_url":"http://opi.oliverslm.ca/onlinetesting/get_map_data.php","data_filter_form":"data_filter_form"};
 
-var current_map_level = 1;
-var min_map_level = 1;
-var max_map_level = 2;
 var clicked_point_obj = null;
-var map_key = "ca";
 var my_data = null;
 var map_data = null;
-var server_script_url = "http://opi.oliverslm.ca/onlinetesting/get_map_data.php";
-var data_filter_form = "data_filter_form";
 
-initParams(params);
-
-function getDataFromServer(current_map_level, hc_key){
+function getDataFromServer(cml, hckey, filter_data){
     $.ajax({
-        url: server_script_url + "?current_map_level="+current_map_level+"&map_key="+hc_key,
+        url: server_script_url + "?" + filter_data + "&current_map_level=" + cml + "&key=" + hckey,
         async : false,
         dataType: "json",
         success: function(data){
@@ -34,14 +26,19 @@ function getDataFromServer(current_map_level, hc_key){
     });
 }
 
+function applyDataFilter(){
+    getDataFromServer(current_map_level, map_key,  $("#"+data_filter_form).serialize());
+}
+
 function initParams(params){
-    if(localStorage.getItem('map_data') == null) {
-        current_map_level = params.current_map_level;
-        min_map_level = params.min_map_level;
-        max_map_level = params.max_map_level;
-        map_key = params.map_key;
-        server_script_url = params.server_script_url;
-        data_filter_form = params.data_filter_form;
+    if(localStorage.getItem('map_state') == null) {
+        window.current_map_level = params.current_map_level;
+        window.min_map_level = params.min_map_level;
+        window.max_map_level = params.max_map_level;
+        window.map_key = params.map_key;
+        window.server_script_url = params.server_script_url;
+        window.data_filter_form = params.data_filter_form;
+        $("#"+data_filter_form).saveForm("form_vals");
     }
     else{
         restoreState();
@@ -66,8 +63,9 @@ function createPopupMenu(){
     });
 
     $(".view_detail").click(function(e){
+        e.preventDefault();
         hidePopup();
-        alert("id : " + clicked_point_obj.id + " > Loading detail");
+        saveState();
     });
 
     if(current_map_level <= min_map_level)
@@ -75,6 +73,11 @@ function createPopupMenu(){
 
     if(current_map_level >= max_map_level)
         $(".go_down").hide();
+
+    $("#close_link").click(function(){
+        hidePopup();
+        return false;
+    });
 }
 
 function updatePopupMenu(){
@@ -92,9 +95,9 @@ function updatePopupMenu(){
 function goUp(e){
     e.preventDefault();
     hidePopup();
-
+    deleteState();
     $.ajax({
-        url: server_script_url + "?action=go_up&current_map_level="+current_map_level+"&key="+map_key,
+        url: server_script_url + "?" + $("#"+data_filter_form).serialize() + "&action=go_up&current_map_level="+current_map_level+"&key="+map_key,
         async : false,
         dataType: "json",
         success: function(data){
@@ -114,9 +117,9 @@ function goUp(e){
 function drillDown(e){
     e.preventDefault();
     hidePopup();
-
+    deleteState();
     $.ajax({
-        url: server_script_url + "?action=go_down&current_map_level="+current_map_level+"&key="+clicked_point_obj["hc-key"],
+        url: server_script_url + "?" + $("#"+data_filter_form).serialize() + "action=go_down&current_map_level="+current_map_level+"&key="+clicked_point_obj["hc-key"],
         async : false,
         dataType: "json",
         success: function(data){
@@ -135,23 +138,27 @@ function drillDown(e){
 
 function saveState(){
 	var obj_to_save = {"current_map_level": current_map_level,"min_map_level": min_map_level, "max_map_level": max_map_level,"map_key": map_key,"server_script_url": server_script_url,"data_filter_form": data_filter_form};
-    localStorage.setItem('map_state', JSON.stringify(testObject));
-
-    $("#"+data_filter_form).saveForm();
+    localStorage.setItem('map_state', JSON.stringify(obj_to_save));
+    return false;
 }
 
 function restoreState(){
     var retrievedObject = localStorage.getItem('map_state');
+    retrievedObject = JSON.parse(retrievedObject);
 
-    current_map_level = retrievedObject.current_map_level;
-    min_map_level = retrievedObject.min_map_level;
-    max_map_level =retrievedObject.max_map_level;
-    map_key = retrievedObject.map_key;
-    server_script_url = retrievedObject.server_script_url;
-    data_filter_form = retrievedObject.data_filter_form;
+    window.current_map_level = retrievedObject.current_map_level;
+    window.min_map_level = retrievedObject.min_map_level;
+    window.max_map_level =retrievedObject.max_map_level;
+    window.map_key = retrievedObject.map_key;
+    window.server_script_url = retrievedObject.server_script_url;
+    window.data_filter_form = retrievedObject.data_filter_form;
+
+    if(localStorage.getItem("form_vals") != null)
+        $("#"+data_filter_form).restoreForm("form_vals");
+}
+
+function deleteState(){
     localStorage.removeItem('map_state');
-
-    $("#"+data_filter_form).restoreForm();
 }
 
 function loadMapData(map_data, data){
@@ -215,17 +222,14 @@ function loadMapData(map_data, data){
 }
 
 $(function(){
-    $("#close_link").click(function(){
-        hidePopup();
-        return false;
-    });
-
-    getDataFromServer(current_map_level,map_key);
+    initParams(params);
+    getDataFromServer(current_map_level,map_key,$("#"+data_filter_form).serialize());
     createPopupMenu();
 
     if(data_filter_form) {
         $("#" + data_filter_form).on("submit", function () {
-            alert($("#" + data_filter_form).serialize());
+            $("#"+data_filter_form).saveForm("form_vals");
+            applyDataFilter();
             return false;
         });
     }

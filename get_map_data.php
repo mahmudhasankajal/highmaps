@@ -11,7 +11,7 @@
 			echo drillDown($_GET['key']);
 	}
 	else
-		echo initMap("ca");
+		echo initMap($_GET['key']);
 
 	function initMap($key){
 		global $db;
@@ -27,7 +27,7 @@
 			$res = $db->query("select * from map_data where parent_hc_key = '" . $row->hc_key . "'");
 			$data = array();
 			while($row = $db->fetch_object($res)){
-				$value = rand(1,100);
+				$value = getUserData($row->hc_key);
 				$tooltip = "<div class=\"tooltip_container\"><h4 class=\"tooltip_header\">" . $row->title . "</h4>";
 				$tooltip .= "<p class=\"tooltip_data\">$value</p></div>";
 				$data[] = array("level"=>$row->level,"tooltip"=>$tooltip,"title"=>$row->title, "hc-key"=>$row->hc_key,"id"=>$row->id,"value"=>$value);
@@ -52,7 +52,7 @@
 			$res = $db->query("select * from map_data where parent_hc_key = '$map_key'");
 			$data = array();
 			while($row = $db->fetch_object($res)){
-				$value = rand(1,100);
+				$value = getUserData($row->hc_key);
 				$tooltip = "<div class=\"tooltip_container\"><h4 class=\"tooltip_header\">" . $row->title . "</h4>";
 				$tooltip .= "<p class=\"tooltip_data\">$value</p></div>";
 				$data[] = array("tooltip"=>$tooltip,"title"=>$row->title, "hc-key"=>$row->hc_key,"id"=>$row->id,"value"=>$value);
@@ -78,7 +78,7 @@
 			$res = $db->query("select * from map_data where parent_hc_key = '" . $row->hc_key . "'");
 			$data = array();
 			while($row = $db->fetch_object($res)){
-				$value = rand(1,100);
+				$value = getUserData($row->hc_key);
 				$tooltip = "<div class=\"tooltip_container\"><h4 class=\"tooltip_header\">" . $row->title . "</h4>";
 				$tooltip .= "<p class=\"tooltip_data\">$value</p></div>";
 				$data[] = array("tooltip"=>$tooltip,"title"=>$row->title, "hc-key"=>$row->hc_key,"id"=>$row->id,"value"=>$value);
@@ -93,4 +93,36 @@
 		echo "<pre>";
 		var_dump($v);
 		echo "</pre>";
+	}
+
+	function getUserData($hc_key){
+		global $db;
+
+		$data_filter = array();
+		if(isset($_GET['date_from']) && trim($_GET['date_from']) != "")
+			$data_filter[] = "joining_date >= '" . trim($_GET['date_from']) . "'";
+		if(isset($_GET['date_to']) && trim($_GET['date_to']) != "")
+			$data_filter[] = "joining_date <= '" . trim($_GET['date_to']) . "'";
+
+		$status_filter = "";
+		switch($_GET['status_cb']){
+			case "all":
+				break;
+			case "active":
+				$data_filter[] = "datediff(now(),last_login_time) <= 15";
+				break;
+			case "inactive":
+				$data_filter[] = "datediff(now(),last_login_time) > 15";
+				break;
+			case "completed":
+				$data_filter[] = "perc_completed = 100";
+		}
+
+		$data_filter[] = "(h2 = '$hc_key' OR h3 = '$hc_key')";
+
+		$data_filter_string = implode(" AND ",$data_filter);
+
+		$res = $db->query("select count(user_id) as cnt from dummy_users where $data_filter_string");
+		$row = $db->fetch_object($res);
+		return $row->cnt;
 	}

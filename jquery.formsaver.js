@@ -1,11 +1,12 @@
 (function ($) {
-    function formsaver(method, container) {
-        function getStorageId(container) {
-            return 'formdata__$url__$extra'.replace('$url', location.pathname)
-                                           .replace('$extra', container.attr('id') || '');
+    function formsaver(method, container, key) {
+        function getStorageId(container, key) {
+            return key;
+            //return 'formdata__$url__$extra'.replace('$url', location.pathname)
+            //                               .replace('$extra', container.attr('id') || '');
         }
 
-        var storageId = getStorageId(container),
+        var storageId = getStorageId(container, key),
             controller = {
                 save: function () {
                     this._save(storageId, this.extractValues());
@@ -65,10 +66,14 @@
             controller[method]();
         });
     }
-    $.fn.saveForm = function () {
-        formsaver('save', $(this));
+    $.fn.saveForm = function (key) {
+        formsaver('save', $(this), key);
+
     };
-    $.fn.restoreForm = function () {
-        formsaver(['restore', 'clear'], $(this));
+    $.fn.restoreForm = function (key) {
+        formsaver(['restore'], $(this), key);
+    };
+    $.fn.deleteForm = function (key) {
+        formsaver(['clear'], $(this), key);
     };
 })(jQuery);

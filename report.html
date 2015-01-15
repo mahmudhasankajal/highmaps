@@ -12,12 +12,14 @@
 <body>
     <div id="report_filters_div">
         <form action="" name="data_filter_form" id="data_filter_form" method="get">
+            Status
             <select name="status_cb" id="status_cb">
                 <option value="all">All</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
+                <option value="completed">Completed</option>
             </select>
-            Date Range From: <input type="text" name="date_from" id="date_from"/> To: <input type="text" name="date_to" id="date_to"/> <input type="submit" name="submit" id="submit" value="Submit">
+            <span style="margin: 0 10px;">Reg. Date</span>From: <input type="text" name="date_from" id="date_from"/> To: <input type="text" name="date_to" id="date_to"/> <input type="submit" name="submit" id="submit" value="Submit">
         </form>
     </div>
     <div id="report_map_div"></div>
