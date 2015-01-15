@@ -15,6 +15,7 @@ var clicked_point_obj = null;
 var server_script_url = "http://opi.oliverslm.ca/onlinetesting/get_map_data.php";
 
 function getDataFromServer(current_map_level, hc_key){
+
     $.ajax({
         url: server_script_url + "?current_map_level="+current_map_level+"&map_key="+hc_key,
         async : false,

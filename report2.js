@@ -9,12 +9,16 @@ var my_data = null;
 var map_data = null;
 
 function getDataFromServer(cml, hckey, filter_data){
+    //$("#loading_overlay").css("display","block");
+    $("body").addClass("loading");
     $.ajax({
         url: server_script_url + "?" + filter_data + "&current_map_level=" + cml + "&key=" + hckey,
         async : false,
         dataType: "json",
         success: function(data){
             if(data != "") {
+                //$("#loading_overlay").css("display","none");
+                $("body").removeClass("loading");
                 var m_data = data;
                 my_data = m_data.data;
                 map_data = m_data.map_data;
@@ -93,6 +97,8 @@ function updatePopupMenu(){
 }
 
 function goUp(e){
+    //$("#loading_overlay").css("display","block");
+    $("body").addClass("loading");
     e.preventDefault();
     hidePopup();
     deleteState();
@@ -102,6 +108,8 @@ function goUp(e){
         dataType: "json",
         success: function(data){
             if(data != "") {
+                //$("#loading_overlay").css("display","none");
+                $("body").removeClass("loading");
                 var m_data = data;
                 my_data = m_data.data;
                 map_data = m_data.map_data;
@@ -115,6 +123,8 @@ function goUp(e){
 }
 
 function drillDown(e){
+    //$("#loading_overlay").css("display","block");
+    $("body").addClass("loading");
     e.preventDefault();
     hidePopup();
     deleteState();
@@ -124,6 +134,8 @@ function drillDown(e){
         dataType: "json",
         success: function(data){
             if(data != "") {
+                //$("#loading_overlay").css("display","none");
+                $("body").removeClass("loading");
                 var m_data = data;
                 my_data = m_data.data;
                 map_data = m_data.map_data;
