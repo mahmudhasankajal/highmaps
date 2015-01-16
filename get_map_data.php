@@ -7,8 +7,10 @@
 		if($_GET['action'] == "go_up"){
 			echo moveUp($_GET['key']);
 		}
-		else
+		elseif($_GET['action'] == "go_down")
 			echo drillDown($_GET['key']);
+		elseif($_GET['action'] == "show_list")
+			echo showTabularData();
 	}
 	else
 		echo initMap($_GET['key']);
@@ -96,6 +98,38 @@
 	}
 
 	function getUserData($hc_key){
+		global $db;
+
+		$data_filter = array();
+		if(isset($_GET['date_from']) && trim($_GET['date_from']) != "")
+			$data_filter[] = "joining_date >= '" . trim($_GET['date_from']) . "'";
+		if(isset($_GET['date_to']) && trim($_GET['date_to']) != "")
+			$data_filter[] = "joining_date <= '" . trim($_GET['date_to']) . "'";
+
+		$status_filter = "";
+		switch($_GET['status_cb']){
+			case "all":
+				break;
+			case "active":
+				$data_filter[] = "datediff(now(),last_login_time) <= 15";
+				break;
+			case "inactive":
+				$data_filter[] = "datediff(now(),last_login_time) > 15";
+				break;
+			case "completed":
+				$data_filter[] = "perc_completed = 100";
+		}
+
+		$data_filter[] = "(h2 = '$hc_key' OR h3 = '$hc_key')";
+
+		$data_filter_string = implode(" AND ",$data_filter);
+
+		$res = $db->query("select count(user_id) as cnt from dummy_users where $data_filter_string");
+		$row = $db->fetch_object($res);
+		return $row->cnt;
+	}
+
+	function showTabularData(){
 		global $db;
 
 		$data_filter = array();
