@@ -197,17 +197,21 @@ function getSelectedRegionMapCoordinates(){
 
 function generateMap(){
     var this_feature = JSON.parse(JSON.stringify(feature));
-
+    var coordinates = "";
     if($("#selected_region option").length > 0) {
         $("#selected_region option").each(function (i) {
             if ($(this).val() == "--") {
+                coordinates = coordinates.substring(0, coordinates.length - 1);
+                this_feature.geometry.coordinates = JSON.parse("[" + coordinates + "]");
                 emptyMap["features"].push(this_feature);
+                coordinates = "";
                 this_feature = JSON.parse(JSON.stringify(feature));
             }
             var hc_key = $(this).val();
             for (var i = 0; i < Highmaps.features.length; i++) {
                 if (Highmaps.features[i].properties["hc-key"] == hc_key)
-                    this_feature.geometry.coordinates.push(Highmaps.features[i].properties["coordinates"]);
+                    //this_feature.geometry.coordinates.push(Highmaps.features[i].properties["coordinates"]);
+                    coordinates = coordinates + JSON.stringify(Highmaps.features[i].geometry.coordinates) + ",";
             }
         });
         emptyMap["features"].push(this_feature);
