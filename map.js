@@ -207,13 +207,16 @@ function generateMap(){
                 coordinates = "";
                 this_feature = JSON.parse(JSON.stringify(feature));
             }
-            var hc_key = $(this).val();
-            for (var i = 0; i < Highmaps.features.length; i++) {
-                if (Highmaps.features[i].properties["hc-key"] == hc_key)
-                    //this_feature.geometry.coordinates.push(Highmaps.features[i].properties["coordinates"]);
-                    coordinates = coordinates + JSON.stringify(Highmaps.features[i].geometry.coordinates) + ",";
+            else {
+                var hc_key = $(this).val();
+                for (var i = 0; i < Highmaps.features.length; i++) {
+                    if (Highmaps.features[i].properties["hc-key"] == hc_key)
+                        coordinates = coordinates + JSON.stringify(Highmaps.features[i].geometry.coordinates) + ",";
+                }
             }
         });
+        coordinates = coordinates.substring(0, coordinates.length - 1);
+        this_feature.geometry.coordinates = JSON.parse("[" + coordinates + "]");
         emptyMap["features"].push(this_feature);
 
         $("#output").text(JSON.stringify(emptyMap));
