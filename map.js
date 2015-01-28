@@ -7,13 +7,45 @@ $(function(){
 });
 
 var emptyMap = {
-    "title": "Empty Map",
-    "version": "1.0.0",
-    "features": [
-        {
-
+    "title": "Canada",
+    "version": "1.1.0",
+    "type": "FeatureCollection",
+    "copyright": "Copyright (c) 2014 Highsoft AS, Based on data from Natural Earth",
+    "copyrightShort": "Natural Earth",
+    "copyrightUrl": "http://www.naturalearthdata.com",
+    "crs": {
+        "type": "name",
+        "properties": {
+            "name": "urn:ogc:def:crs:EPSG:102002"
         }
-    ]
+    },
+    "hc-transform": {
+        "default": {
+            "rotation": -0.0872664625997,
+            "crs": "+proj=lcc +lat_1=50 +lat_2=70 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
+            "scale": 0.000128658751263,
+            "jsonres": 15.5,
+            "jsonmarginX": -999,
+            "jsonmarginY": 9851.0,
+            "xoffset": -2521511.95594,
+            "yoffset": 4974352.42937
+        }
+    },
+    "features": []
+};
+
+var feature = {
+    "type": "",
+    "id": "",
+    "properties": {
+        "hc-middle-x": 0.52,
+        "hc-middle-y": 0.50,
+        "hc-key": ""
+    },
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": []
+    }
 };
 
 var highest_map_level = 0;
@@ -163,6 +195,23 @@ function getSelectedRegionMapCoordinates(){
     });
 }
 
-function showPopup(id,data,pos){
+function generateMap(){
+    var this_feature = JSON.parse(JSON.stringify(feature));
 
+    if($("#selected_region option").length > 0) {
+        $("#selected_region option").each(function (i) {
+            if ($(this).val() == "--") {
+                emptyMap["features"].push(this_feature);
+                this_feature = JSON.parse(JSON.stringify(feature));
+            }
+            var hc_key = $(this).val();
+            for (var i = 0; i < Highmaps.features.length; i++) {
+                if (Highmaps.features[i].properties["hc-key"] == hc_key)
+                    this_feature.geometry.coordinates.push(Highmaps.features[i].properties["coordinates"]);
+            }
+        });
+        emptyMap["features"].push(this_feature);
+
+        $("#output").text(JSON.stringify(emptyMap));
+    }
 }
