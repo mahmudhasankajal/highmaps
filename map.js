@@ -226,18 +226,52 @@ function getMaxIndex(arr){
     return max_idx;
 }
 
+function getMaxMin(arr){
+    var max = -1;
+    var min = 99999;
+    for(var i=0; i<arr.length; i++){
+        if(arr[i] > max)
+            max = arr[i];
+        if(arr[i] < min)
+            min = arr[i];
+    }
+
+    return [min, max];
+}
+
 function generateMap(){
     var this_feature = JSON.parse(JSON.stringify(feature));
     var coordinates = "";
     var areas_indices = [];
     var levels = [];
     var j = 0;
+    var output_coordinates = [];
     if($("#selected_region option").length > 0) {
         $("#selected_region option").each(function (i) {
             var hc_key = $(this).val();
             if (hc_key == "--") {
-                coordinates = coordinates.substring(0, coordinates.length - 1);
-                this_feature.geometry.coordinates = JSON.parse("[" + coordinates + "]");
+                var min_max = getMaxMin(levels);
+                if(min_max[0] == min_max[1]){ // all areas are of same level of coordinates
+                    output_coordinates = [];
+                    var idx = 0;
+                    for(var k=0; k<areas_indices.length; k++){
+                        for(var l=0;l<Highmaps.features[k].geometry.coordinates.length;l++){
+                            output_coordinates[idx] = Highmaps.features[k].geometry.coordinates[l];
+                        }
+                    }
+                }
+                else{
+                    var max_level_idx = getMaxIndex(levels);
+                    output_coordinates = Highmaps.features[areas_indices[max_level_idx]].geometry.coordinates;
+                    for(var k=0; k<areas_indices.length; k++){
+                        if(k == max_level_idx)
+                            continue;
+                        output_coordinates[output_coordinates.length] = Highmaps.features[k].geometry.coordinates;
+                    }
+                }
+                //coordinates = coordinates.substring(0, coordinates.length - 1);
+                //this_feature.geometry.coordinates = JSON.parse("[" + coordinates + "]");
+                this_feature.geometry.coordinates = output_coordinates;
                 emptyMap["features"].push(this_feature);
                 coordinates = "";
                 this_feature = JSON.parse(JSON.stringify(feature));
