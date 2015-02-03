@@ -51,17 +51,24 @@ var feature = {
 var highest_map_level = 0;
 var lowest_map_level = 2;
 var current_map_level = 0;
+var max_array_level = 0;
 
 var my_data = [{"hc-key": "ca-ab","name":"Alberta","value": 1},{"hc-key": "ca-bc","name":"British Columbia","value": 2}, {"hc-key": "ca-mb","name":"Manitoba","value":3}, {"hc-key": "ca-nb","name":"New Brunswick","value": 4}, {"hc-key": "ca-nl","name":"Newfoundland and Labrador","value": 5}, {"hc-key": "ca-ns","name":"Nova Scotia","value": 6}, {"hc-key": "ca-nt","name":"Northwest Territories","value": 7}, {"hc-key": "ca-nu","name":"Nunavut","value": 8}, {"hc-key": "ca-on","name":"Ontario","value": 9}, {"hc-key": "ca-pe","name":"Prince Edward Island","value": 10}, {"hc-key": "ca-qc","name":"Quebec","value": 11}, {"hc-key": "ca-sk","name":"Saskatchewan","value": 12}, {"hc-key": "ca-yt","name":"Yukon","value": 13}];
+
+var my_custom_data = [{"my-hc-key": "ca-pr","name":"Prairies","value": 1},{"my-hc-key": "ca-wc","name":"British Columbia","value": 2}, {"my-hc-key": "ca-ac","name":"Atlantic Canada","value": 4}, {"my-hc-key": "ca-nc","name":"Northwest Territories","value": 7}, {"my-hc-key": "ca-on","name":"Ontario","value": 9}, {"my-hc-key": "ca-qc","name":"Quebec","value": 11}];
+
+//my_data = [];
 
 var Highmaps = null;
 
 function selectMap(){
     Highmaps = Highcharts.maps[$("#mapselector").val()];
     if ($("#mapselector").val() == "countries/ca/ca-all")
-        loadMapData(my_data);
+        loadMapData(my_data,"hc-key");
+    else if ($("#mapselector").val() == "countries/ca/ca-custom-all")
+        loadMapData(my_custom_data,"my-hc-key");
     else
-        loadMapData([]);
+        loadMapData([],"hc-key");
 }
 
 function zoomPoint(selectedPoint){
@@ -69,7 +76,7 @@ function zoomPoint(selectedPoint){
     $("#mapselector").change();
 }
 
-function loadMapData(data){
+function loadMapData(data,key){
     $("#region_list").html("");
     for(var i = 0; i < Highmaps.features.length; i++){
         var el = Highmaps.features[i];
@@ -83,7 +90,6 @@ function loadMapData(data){
         title : {
             text : 'Highmaps map selector'
         },
-
         /*subtitle : {
          text : 'Source map: <a href="http://code.highcharts.com/mapdata/countries/ca/ca-all.js">Canada</a>'
          },*/
@@ -120,7 +126,7 @@ function loadMapData(data){
         series : [{
             data : data,
             mapData: Highmaps,
-            joinBy: 'hc-key',
+            joinBy: key,
             name: 'Random data',
             states: {
                 hover: {
@@ -195,23 +201,61 @@ function getSelectedRegionMapCoordinates(){
     });
 }
 
+function getLevel(my_arr){
+    var l = 0;
+    if(Object.prototype.toString.call( my_arr ) === '[object Array]'){
+        for(var i=0; i<my_arr.length; i++)
+            l = 1 + getLevel(my_arr[i]);
+    }
+    else
+        return 0;
+    if(l > max_array_level)
+        max_array_level = l;
+    return max_array_level;
+}
+
+function getMaxIndex(arr){
+    var max = 0;
+    var max_idx = -1;
+    for(var i=0; i<arr.length; i++) {
+        if (arr[i] > max) {
+            max = arr[i];
+            max_idx = i;
+        }
+    }
+    return max_idx;
+}
+
 function generateMap(){
     var this_feature = JSON.parse(JSON.stringify(feature));
     var coordinates = "";
+    var areas_indices = [];
+    var levels = [];
+    var j = 0;
     if($("#selected_region option").length > 0) {
         $("#selected_region option").each(function (i) {
-            if ($(this).val() == "--") {
+            var hc_key = $(this).val();
+            if (hc_key == "--") {
                 coordinates = coordinates.substring(0, coordinates.length - 1);
                 this_feature.geometry.coordinates = JSON.parse("[" + coordinates + "]");
                 emptyMap["features"].push(this_feature);
                 coordinates = "";
                 this_feature = JSON.parse(JSON.stringify(feature));
+                areas_indices = [];
+                levels = [];
+                j = 0;
             }
             else {
-                var hc_key = $(this).val();
                 for (var i = 0; i < Highmaps.features.length; i++) {
-                    if (Highmaps.features[i].properties["hc-key"] == hc_key)
-                        coordinates = coordinates + JSON.stringify(Highmaps.features[i].geometry.coordinates) + ",";
+                    if (Highmaps.features[i].properties["hc-key"] == hc_key) {
+                        //coordinates = coordinates + JSON.stringify(Highmaps.features[i].geometry.coordinates) + ",";
+                        /*for (var j = 0; j < Highmaps.features[i].geometry.coordinates.length; j++) {
+                            coordinates = coordinates + JSON.stringify(Highmaps.features[i].geometry.coordinates[j]) + ",";
+                        }*/
+                        max_array_level = 0;
+                        areas_indices[j] = i;
+                        levels[j] = getLevel(Highmaps.features[i].geometry.coordinates);
+                    }
                 }
             }
         });
