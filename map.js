@@ -57,6 +57,8 @@ var my_data = [{"hc-key": "ca-ab","name":"Alberta","value": 1},{"hc-key": "ca-bc
 
 var my_custom_data = [{"my-hc-key": "ca-pr","name":"Prairies","value": 1},{"my-hc-key": "ca-wc","name":"British Columbia","value": 2}, {"my-hc-key": "ca-ac","name":"Atlantic Canada","value": 4}, {"my-hc-key": "ca-nc","name":"Northwest Territories","value": 7}, {"my-hc-key": "ca-on","name":"Ontario","value": 9}, {"my-hc-key": "ca-qc","name":"Quebec","value": 11}];
 
+var pr_data = [{"my-hc-key": "ca-pr","name":"Prairies","value": 100}];
+
 //my_data = [];
 
 var Highmaps = null;
@@ -67,6 +69,8 @@ function selectMap(){
         loadMapData(my_data,"hc-key");
     else if ($("#mapselector").val() == "countries/ca/ca-custom-all")
         loadMapData(my_custom_data,"my-hc-key");
+    else if ($("#mapselector").val() == "countries/ca/ca-pr-all")
+        loadMapData(pr_data,"my-hc-key");
     else
         loadMapData([],"hc-key");
 }
@@ -240,6 +244,7 @@ function getMaxMin(arr){
 }
 
 function generateMap(){
+
     var this_feature = JSON.parse(JSON.stringify(feature));
     var coordinates = "";
     var areas_indices = [];
@@ -248,8 +253,10 @@ function generateMap(){
     var output_coordinates = [];
     if($("#selected_region option").length > 0) {
         $("#selected_region option").each(function (i) {
+            //debugger;
             var hc_key = $(this).val();
             if (hc_key == "--") {
+                //debugger;
                 var min_max = getMaxMin(levels);
                 if(min_max[0] == min_max[1]){ // all areas are of same level of coordinates
                     output_coordinates = [];
@@ -257,6 +264,7 @@ function generateMap(){
                     for(var k=0; k<areas_indices.length; k++){
                         for(var l=0;l<Highmaps.features[k].geometry.coordinates.length;l++){
                             output_coordinates[idx] = Highmaps.features[k].geometry.coordinates[l];
+                            idx++;
                         }
                     }
                 }
@@ -289,13 +297,38 @@ function generateMap(){
                         max_array_level = 0;
                         areas_indices[j] = i;
                         levels[j] = getLevel(Highmaps.features[i].geometry.coordinates);
+                        j++;
                     }
                 }
             }
         });
-        coordinates = coordinates.substring(0, coordinates.length - 1);
-        this_feature.geometry.coordinates = JSON.parse("[" + coordinates + "]");
-        emptyMap["features"].push(this_feature);
+        //debugger;
+        if(levels.length > 0) {
+            var min_max = getMaxMin(levels);
+            if (min_max[0] == min_max[1]) { // all areas are of same level of coordinates
+                output_coordinates = [];
+                var idx = 0;
+                for (var k = 0; k < areas_indices.length; k++) {
+                    for (var l = 0; l < Highmaps.features[k].geometry.coordinates.length; l++) {
+                        output_coordinates[idx] = Highmaps.features[k].geometry.coordinates[l];
+                    }
+                }
+            }
+            else {
+                var max_level_idx = getMaxIndex(levels);
+                output_coordinates = Highmaps.features[areas_indices[max_level_idx]].geometry.coordinates;
+                for (var k = 0; k < areas_indices.length; k++) {
+                    if (k == max_level_idx)
+                        continue;
+                    output_coordinates[output_coordinates.length] = Highmaps.features[k].geometry.coordinates;
+                }
+            }
+            this_feature.geometry.coordinates = output_coordinates;
+            emptyMap["features"].push(this_feature);
+        }
+        //coordinates = "";
+        //this_feature = JSON.parse(JSON.stringify(feature));
+        //emptyMap["features"].push(this_feature);
 
         $("#output").text(JSON.stringify(emptyMap));
     }
