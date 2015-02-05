@@ -58,6 +58,7 @@ var my_data = [{"hc-key": "ca-ab","name":"Alberta","value": 1},{"hc-key": "ca-bc
 var my_custom_data = [{"my-hc-key": "ca-pr","name":"Prairies","value": 1},{"my-hc-key": "ca-wc","name":"British Columbia","value": 2}, {"my-hc-key": "ca-ac","name":"Atlantic Canada","value": 4}, {"my-hc-key": "ca-nc","name":"Northwest Territories","value": 7}, {"my-hc-key": "ca-on","name":"Ontario","value": 9}, {"my-hc-key": "ca-qc","name":"Quebec","value": 11}];
 
 var pr_data = [{"my-hc-key": "ca-pr","name":"Prairies","value": 100}];
+var wcpron_data = [{"my-hc-key": "ca-wc","name":"Western Canada","value": 56},{"my-hc-key": "ca-pr","name":"Prairies","value": 81},{"my-hc-key": "ca-on","name":"Ontario","value": 120}];
 
 //my_data = [];
 
@@ -71,6 +72,8 @@ function selectMap(){
         loadMapData(my_custom_data,"my-hc-key");
     else if ($("#mapselector").val() == "countries/ca/ca-pr-all")
         loadMapData(pr_data,"my-hc-key");
+    else if ($("#mapselector").val() == "countries/ca/ca-wcpron-all")
+        loadMapData(wcpron_data,"my-hc-key");
     else
         loadMapData([],"hc-key");
 }
@@ -262,8 +265,10 @@ function generateMap(){
                     output_coordinates = [];
                     var idx = 0;
                     for(var k=0; k<areas_indices.length; k++){
-                        for(var l=0;l<Highmaps.features[k].geometry.coordinates.length;l++){
-                            output_coordinates[idx] = Highmaps.features[k].geometry.coordinates[l];
+                        //output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates;
+                        //idx++;
+                        for(var l=0;l<Highmaps.features[areas_indices[k]].geometry.coordinates.length;l++){
+                            output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates[l];
                             idx++;
                         }
                     }
@@ -274,7 +279,7 @@ function generateMap(){
                     for(var k=0; k<areas_indices.length; k++){
                         if(k == max_level_idx)
                             continue;
-                        output_coordinates[output_coordinates.length] = Highmaps.features[k].geometry.coordinates;
+                        output_coordinates[output_coordinates.length] = Highmaps.features[areas_indices[k]].geometry.coordinates;
                     }
                 }
                 //coordinates = coordinates.substring(0, coordinates.length - 1);
@@ -309,8 +314,11 @@ function generateMap(){
                 output_coordinates = [];
                 var idx = 0;
                 for (var k = 0; k < areas_indices.length; k++) {
-                    for (var l = 0; l < Highmaps.features[k].geometry.coordinates.length; l++) {
-                        output_coordinates[idx] = Highmaps.features[k].geometry.coordinates[l];
+                    //output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates;
+                    //idx++;
+                    for (var l = 0; l < Highmaps.features[areas_indices[k]].geometry.coordinates.length; l++) {
+                        output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates[l];
+                        idx++;
                     }
                 }
             }
@@ -320,7 +328,7 @@ function generateMap(){
                 for (var k = 0; k < areas_indices.length; k++) {
                     if (k == max_level_idx)
                         continue;
-                    output_coordinates[output_coordinates.length] = Highmaps.features[k].geometry.coordinates;
+                    output_coordinates[output_coordinates.length] = Highmaps.features[areas_indices[k]].geometry.coordinates;
                 }
             }
             this_feature.geometry.coordinates = output_coordinates;
