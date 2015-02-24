@@ -9,7 +9,11 @@
         <script type="text/javascript" src="map.js"></script>
         <script type="text/javascript" src="ca-all.js"></script>
         <script type="text/javascript" src="ca-custom-map.js"></script>
+        <script type="text/javascript" src="ca-atlantic.js"></script>
         <script type="text/javascript" src="ca-pr-all.js"></script>
+        <script type="text/javascript" src="ca-nc-all.js"></script>
+        <script type="text/javascript" src="ca-wc-all.js"></script>
+		<script type="text/javascript" src="ca-ac-all.js"></script>
         <script type="text/javascript" src="ca-wcpron-all.js"></script>
         <script type="text/javascript" src="ca-all-all.js"></script>
         <script type="text/javascript" src="ca-ab-all.js"></script>
@@ -36,7 +40,11 @@
                         <option value="countries/ca/ca-all">Canada All</option>
                         <option value="countries/ca/ca-all-all">Canada All Provinces</option>
                         <option value="countries/ca/ca-custom-all">Custom Map</option>
+                        <option value="countries/ca/ca-atlantic">Atlantic</option>
                         <option value="countries/ca/ca-pr-all">Prairie Map</option>
+                        <option value="countries/ca/ca-nc-all">Northern Canada Map</option>
+                        <option value="countries/ca/ca-wc-all">Western Canada Map</option>
+						<option value="countries/ca/ca-ac-all">Atlantic Canada Map</option>
                         <option value="countries/ca/ca-wcpron-all">Western Canada, Prairie Map & Ontario</option>
                         <option value="countries/ca/ca-ab-all">Alberta</option>
                         <option value="countries/ca/ca-bc-all">British Columbia</option>
@@ -60,8 +68,8 @@
             <div id="middle">
                 <input type="button" id="addBtn" value=">>" onclick="addRegion();">
                 <input type="button" id="removeBtn" value="<<" onclick="removeRegion();">
-                <input type="button" id="sepBtn" value="--" onclick="addSeparator();">
-                <input type="button" id="genBtn" value="<>" onclick="generateMap();">
+                <input type="button" id="sepBtn" value="--" onclick="addSeparator(event);">
+                <input type="button" id="genBtn" value="<>" onclick="generateMap2();">
             </div>
             <div id="right">
                 <label for="selected_region">Selected Regions</label><br>
@@ -71,6 +79,10 @@
             <div id="output"></div>
         </div>
         <div id="popup"></div>
-
+        <div id="input_vals">
+            <label for="area_name">Name</label><input type="text" name="area_name" id="area_name"><br>
+            <label for="area_key">Key</label><input type="text" name="area_key" id="area_key"><br>
+            <label for="save_btn">&nbsp;</label><input type="button" name="save_btn" id="save_btn" onclick="hideAreaInfo();" value="Submit">
+        </div>
     </body>
 </html>

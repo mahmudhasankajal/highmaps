@@ -1,6 +1,5 @@
 $(function(){
     $('#mapdiv').click(function(e) {
-        //alert(e.pageX+ ' , ' + e.pageY);
         if($("#popup").attr("display") == "block")
             $("#popup").attr("display","none");
     });
@@ -40,22 +39,25 @@ var feature = {
     "properties": {
         "hc-middle-x": 0.52,
         "hc-middle-y": 0.50,
+        "name" : "",
         "hc-key": ""
     },
     "geometry": {
-        "type": "Polygon",
+        "type": "MultiPolygon",
         "coordinates": []
     }
 };
 
+var area_info = [];
 var highest_map_level = 0;
 var lowest_map_level = 2;
 var current_map_level = 0;
 var max_array_level = 0;
+var map_generator_pressed = false;
 
 var my_data = [{"hc-key": "ca-ab","name":"Alberta","value": 1},{"hc-key": "ca-bc","name":"British Columbia","value": 2}, {"hc-key": "ca-mb","name":"Manitoba","value":3}, {"hc-key": "ca-nb","name":"New Brunswick","value": 4}, {"hc-key": "ca-nl","name":"Newfoundland and Labrador","value": 5}, {"hc-key": "ca-ns","name":"Nova Scotia","value": 6}, {"hc-key": "ca-nt","name":"Northwest Territories","value": 7}, {"hc-key": "ca-nu","name":"Nunavut","value": 8}, {"hc-key": "ca-on","name":"Ontario","value": 9}, {"hc-key": "ca-pe","name":"Prince Edward Island","value": 10}, {"hc-key": "ca-qc","name":"Quebec","value": 11}, {"hc-key": "ca-sk","name":"Saskatchewan","value": 12}, {"hc-key": "ca-yt","name":"Yukon","value": 13}];
 
-var my_custom_data = [{"my-hc-key": "ca-pr","name":"Prairies","value": 1},{"my-hc-key": "ca-wc","name":"British Columbia","value": 2}, {"my-hc-key": "ca-ac","name":"Atlantic Canada","value": 4}, {"my-hc-key": "ca-nc","name":"Northwest Territories","value": 7}, {"my-hc-key": "ca-on","name":"Ontario","value": 9}, {"my-hc-key": "ca-qc","name":"Quebec","value": 11}];
+var my_custom_data = [{"my-hc-key": "ca-pr","name":"Prairies","value": 1},{"my-hc-key": "ca-wc","name":"Western Canada","value": 2}, {"my-hc-key": "ca-ac","name":"Atlantic Canada","value": 4}, {"my-hc-key": "ca-nc","name":"Northern Canada","value": 7}, {"my-hc-key": "ca-on","name":"Ontario","value": 9}, {"my-hc-key": "ca-qc","name":"Quebec","value": 11}];
 
 var pr_data = [{"my-hc-key": "ca-pr","name":"Prairies","value": 100}];
 var wcpron_data = [{"my-hc-key": "ca-wc","name":"Western Canada","value": 56},{"my-hc-key": "ca-pr","name":"Prairies","value": 81},{"my-hc-key": "ca-on","name":"Ontario","value": 120}];
@@ -191,22 +193,12 @@ function removeRegion(){
     $('#mapdiv').highcharts().series[0].setData(data);
 }
 
-function addSeparator(){
+function addSeparator(e){
     $("#selected_region").append($("<option></option>").attr("value","--").text("----------"));
+    $("#input_vals").css("display","block").css("left",e.clientX + "px").css("top",e.clientY+"px");
+    $("#area_name").focus();
 }
 
-function getSelectedRegionMapCoordinates(){
-    var coordinates = [];
-    $("#selected_region option").each(function(i){
-        coordinates[i] = {};
-        var hc_key = $(this).val();
-
-        for(var i = 0; i < Highmaps.features.length; i++){
-            if(Highmaps.features[i].properties["hc-key"] == hc_key)
-                coordinates[i].coordinates = Highmaps.features[i].properties["coordinates"];
-        }
-    });
-}
 
 function getLevel(my_arr){
     var l = 0;
@@ -218,126 +210,104 @@ function getLevel(my_arr){
         return 0;
     if(l > max_array_level)
         max_array_level = l;
+    else
+        max_array_level = 0;
     return max_array_level;
 }
 
-function getMaxIndex(arr){
-    var max = 0;
-    var max_idx = -1;
-    for(var i=0; i<arr.length; i++) {
-        if (arr[i] > max) {
-            max = arr[i];
-            max_idx = i;
-        }
-    }
-    return max_idx;
-}
-
-function getMaxMin(arr){
-    var max = -1;
-    var min = 99999;
-    for(var i=0; i<arr.length; i++){
-        if(arr[i] > max)
-            max = arr[i];
-        if(arr[i] < min)
-            min = arr[i];
-    }
-
-    return [min, max];
-}
-
-function generateMap(){
-
+function generateMap2(){
     var this_feature = JSON.parse(JSON.stringify(feature));
     var coordinates = "";
     var areas_indices = [];
     var levels = [];
     var j = 0;
     var output_coordinates = [];
+    var area_number = 0;
+
+    if($("#selected_region option").last().val() != "--"){
+        var x = $("#genBtn").position();
+        $("#input_vals").css("display","block").css("left",x.left + "px").css("top",x.top+"px");
+        $("#area_name").focus();
+        map_generator_pressed = true;
+        $("#selected_region").append($("<option></option>").attr("value","--").text("----------"));
+        return;
+    }
+
     if($("#selected_region option").length > 0) {
         $("#selected_region option").each(function (i) {
-            //debugger;
             var hc_key = $(this).val();
             if (hc_key == "--") {
-                //debugger;
-                var min_max = getMaxMin(levels);
-                if(min_max[0] == min_max[1]){ // all areas are of same level of coordinates
-                    output_coordinates = [];
-                    var idx = 0;
-                    for(var k=0; k<areas_indices.length; k++){
-                        //output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates;
-                        //idx++;
-                        for(var l=0;l<Highmaps.features[areas_indices[k]].geometry.coordinates.length;l++){
+                output_coordinates = [];
+                var idx = 0;
+                for(var k=0; k<areas_indices.length; k++){
+                    if(Highmaps.features[areas_indices[k]].geometry.type=="Polygon"){
+                        output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates;
+                        idx++;
+                    }
+                    else {
+                        for (var l = 0; l < Highmaps.features[areas_indices[k]].geometry.coordinates.length; l++) {
                             output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates[l];
                             idx++;
                         }
                     }
                 }
-                else{
-                    var max_level_idx = getMaxIndex(levels);
-                    output_coordinates = Highmaps.features[areas_indices[max_level_idx]].geometry.coordinates;
-                    for(var k=0; k<areas_indices.length; k++){
-                        if(k == max_level_idx)
-                            continue;
-                        output_coordinates[output_coordinates.length] = Highmaps.features[areas_indices[k]].geometry.coordinates;
-                    }
-                }
-                //coordinates = coordinates.substring(0, coordinates.length - 1);
-                //this_feature.geometry.coordinates = JSON.parse("[" + coordinates + "]");
+
                 this_feature.geometry.coordinates = output_coordinates;
+                this_feature.properties.name = area_info[area_number].name;
+                this_feature.properties["hc-key"] = area_info[area_number].key;
+                area_number++;
                 emptyMap["features"].push(this_feature);
-                coordinates = "";
                 this_feature = JSON.parse(JSON.stringify(feature));
                 areas_indices = [];
-                levels = [];
                 j = 0;
             }
-            else {
+            else{
                 for (var i = 0; i < Highmaps.features.length; i++) {
                     if (Highmaps.features[i].properties["hc-key"] == hc_key) {
-                        //coordinates = coordinates + JSON.stringify(Highmaps.features[i].geometry.coordinates) + ",";
-                        /*for (var j = 0; j < Highmaps.features[i].geometry.coordinates.length; j++) {
-                            coordinates = coordinates + JSON.stringify(Highmaps.features[i].geometry.coordinates[j]) + ",";
-                        }*/
-                        max_array_level = 0;
                         areas_indices[j] = i;
-                        levels[j] = getLevel(Highmaps.features[i].geometry.coordinates);
                         j++;
                     }
                 }
             }
         });
-        //debugger;
-        if(levels.length > 0) {
-            var min_max = getMaxMin(levels);
-            if (min_max[0] == min_max[1]) { // all areas are of same level of coordinates
-                output_coordinates = [];
-                var idx = 0;
-                for (var k = 0; k < areas_indices.length; k++) {
-                    //output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates;
-                    //idx++;
+        if(areas_indices.length > 0){
+            output_coordinates = [];
+            var idx = 0;
+            for(var k=0; k<areas_indices.length; k++){
+                if(Highmaps.features[areas_indices[k]].geometry.type=="Polygon"){
+                    output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates;
+                    idx++;
+                }
+                else {
                     for (var l = 0; l < Highmaps.features[areas_indices[k]].geometry.coordinates.length; l++) {
                         output_coordinates[idx] = Highmaps.features[areas_indices[k]].geometry.coordinates[l];
                         idx++;
                     }
                 }
             }
-            else {
-                var max_level_idx = getMaxIndex(levels);
-                output_coordinates = Highmaps.features[areas_indices[max_level_idx]].geometry.coordinates;
-                for (var k = 0; k < areas_indices.length; k++) {
-                    if (k == max_level_idx)
-                        continue;
-                    output_coordinates[output_coordinates.length] = Highmaps.features[areas_indices[k]].geometry.coordinates;
-                }
-            }
+
             this_feature.geometry.coordinates = output_coordinates;
+            this_feature.properties.name = area_info[area_number].name;
+            this_feature.properties["hc-key"] = area_info[area_number].key;
             emptyMap["features"].push(this_feature);
         }
-        //coordinates = "";
-        //this_feature = JSON.parse(JSON.stringify(feature));
-        //emptyMap["features"].push(this_feature);
+    }
 
-        $("#output").text(JSON.stringify(emptyMap));
+    $("#output").text(JSON.stringify(emptyMap));
+}
+
+function hideAreaInfo(){
+    var name = $("#area_name").val().trim();
+    var key = $("#area_key").val().trim();
+    if(name == '' || key == ''){
+        alert("Both fields are mandatory");
+    }
+    else{
+        area_info.push({"name": name, "key": key});
+        $("#area_name").val("");
+        $("#area_key").val("");
+        $("#input_vals").hide();
+        if(map_generator_pressed)
+            generateMap2();
     }
 }
